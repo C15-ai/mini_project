@@ -1,0 +1,119 @@
+from abc import ABC, abstractmethod
+
+
+class Store(ABC):
+    def __init__(self, name, price, qty):
+        self.name = name
+        self.price = price
+        self.qty = qty
+
+    @abstractmethod
+    def info(self):
+        pass
+
+    def __str__(self):
+        return f"Nomi: {self.name} Narxi: {self.price} Soni{self.qty}"
+
+
+class Product(Store):
+    def info(self):
+        return f"{self.name} - {self.price}som - omborda {self.qty}"
+
+
+class Catalog:
+    def __init__(self, name):
+        self.name = name
+        self.products = []
+
+    def add_product(self, product):
+        if isinstance(product, Store):
+            self.products.append(product)
+    def get_list(self):
+        return self.products
+
+    def search(self,name):
+        for i in self.products:
+            if i.name.lower()==name.lower():
+                return i
+            return None
+
+
+class Order:
+    orders = []
+
+    def __init__(self, product, qty):
+        self.product = product
+        self.qty = qty
+        Order.orders.append(self)
+
+    def __str__(self):
+        return f"{self.product.name} - Buyurtma soni {self.qty}"
+
+
+def main():
+    c1 = Catalog("Main catalog")
+    c1.add_product(Product("Redmi Note 11", 3000000, 200))
+    c1.add_product(Product("HUAWEI D16", 10000000, 100))
+    c1.add_product(Product("MACBOOK AIR", 11000000, 100))
+    while True:
+        print("===MENU===")
+        print("1.Mahsulot Royhti")
+        print("2.Mahsulot Qoshish")
+        print("3.buyurtma Berish")
+        print("4.Buyurtmalar Royxati")
+        print("5.Qidirish")
+        print("6.EXIT")
+        try:
+            choice = int(input("Tanlang: "))
+        except ValueError:
+            print("Faqat son kiriting!")
+            continue
+
+        if choice == 1:
+            for p in c1.get_list():
+                print(p.info())
+
+        elif choice == 2:
+            print("Yangi mahsulot kiritish:")
+            name = input("Nomi: ")
+            price = int(input("Narxi: "))
+            qty = int(input("Soni: "))
+            c1.add_product(Product(name, price, qty))
+            print("Mahsulot qo'shildi")
+
+        elif choice == 3:
+            name = input("Qaysi mahsulot: ")
+            product = c1.search(name)
+            if product:
+                qty = int(input("Nechta: "))
+                if qty <= product.qty:
+                    product.qty -= qty
+                    Order(product, qty)
+                    print(" Buyurtma qabul qilindi")
+                else:
+                    print("Omborda yetarli mahsulot yo‘q")
+            else:
+                print(" Topilmadi")
+
+        elif choice == 4:
+            if not Order.orders:
+                print("Buyurtmalar yo‘q")
+            else:
+                for o in Order.orders:
+                    print(o)
+
+        elif choice == 5:
+            name = input("Qidirilayotgan nom: ")
+            p = c1.search(name)
+            if p:
+                print("Topildi:", p.info())
+            else:
+                print("Topilmadi")
+
+        elif choice == 6:
+            print("Dastur tugadi")
+            break
+
+        else:
+            print("Noto'g'ri tanlov!")
+main()
